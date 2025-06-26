@@ -2,58 +2,23 @@ import pygame
 import sys
 from modules.map_converter import image_to_array
 from pdf2image import convert_from_path
-
-
-# Initialisieren
-pygame.init()
-
-# Konstanten
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-TILE_SIZE = 10  # Neue Größe der Tiles
-
-# Farben
-WHITE = (255, 255, 255)
-GRAY = (100, 100, 100)
-BLUE = (0, 0, 255)
-BLACK = (0, 0, 0)
-
-# Fenster erstellen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Blast Adventures")
-
-# MODES
-
-# Mode 1
-# Map generation
-image_path = "maps/map1.png"  # Ersetze dies durch deinen Dateipfad
-array = image_to_array(image_path)
-
-game_map = array
-
-# Spieler starten
-player_pos = [TILE_SIZE * 2, TILE_SIZE * 2]  # Startposition
-speed = 60 # FPS
-
+from typing import Optional
 
 #Funktionen
 
-    
-
-
-def running_mode():
-    move_speed = PLAYER.speed  # Pixel pro Frame
-
+def RunningMode():
+    PLAYER.speed  # Pixel pro Frame
 
     keys = pygame.key.get_pressed()
     dx, dy = 0, 0
     if keys[pygame.K_a]:
-        dx = -move_speed
+        dx = -PLAYER.speed
     if keys[pygame.K_d]:
-        dx = move_speed
+        dx = PLAYER.speed
     if keys[pygame.K_w]:
-        dy = -move_speed
+        dy = -PLAYER.speed
     if keys[pygame.K_s]:
-        dy = move_speed
+        dy = PLAYER.speed
 
 
     # Neuer Player-Rect mit versetzter Position
@@ -95,17 +60,17 @@ def running_mode():
     pygame.draw.rect(screen, BLACK, Enemy1.rect)
 
     if PLAYER.rect.colliderect(Enemy1.rect):
-        MODE = 2
-
+        GameState.CurrentEnemy = Enemy1
+        GameState.mode = 2
 
 
     pygame.display.flip()
 
-def end_screen_mode():
+def EndScreenMode():
    screen.fill(BLACK)
    pygame.display.flip()
 
-def title_screen_mode():
+def TitleScreenMode():
     title_screen_img = convert_from_path('assets/title_screen_img.pdf', dpi=150) #liste der seiten
     title_screen_img = title_screen_img[0].convert("RGB") #erste seite als pdf nehmen
 
@@ -115,7 +80,7 @@ def title_screen_mode():
     screen.blit(pg_image, (0, 0))
     pygame.display.flip()
 
-def fighting_mode(Enemy):
+def FightingMode(Enemy):
     screen.fill(WHITE)
     fighting_player_size = 40
     player_rect = pygame.Rect(SCREEN_WIDTH/6, SCREEN_HEIGHT/2 - fighting_player_size, fighting_player_size, fighting_player_size)
@@ -125,13 +90,22 @@ def fighting_mode(Enemy):
 
     pygame.display.flip()
 
+
+    # WIN Debug
     keys = pygame.key.get_pressed()
     if keys[pygame.K_o]:
-        global MODE
-        MODE = 1
+        # PLAYER.pos[0] += Enemy.size 
+        # PLAYER.pos[1] += Enemy.size 
+        GameState.CurrentEnemy = None
+        GameState.mode = 1
 
 
 #Klassen
+class GameStateManager:
+    def __init__(self):
+        self.mode = 4
+        self.CurrentEnemy: Optional[Enemy] = None
+
 class Player:
     def __init__(self, pos: list, name: str, size: int, diff: float, type: str, xp: int, hp: int, speed: int, dodge: float, att: int, cp: float, defe: int):
         self.name = name
@@ -150,14 +124,11 @@ class Player:
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.size, self.size)
 
     def engage(self, enemy):
-        MODE = 2
-        fighting_mode(enemy)
-
-
-PLAYER = Player([10, 10], "Player1", TILE_SIZE - 1, 1.0, "melee", 0, 100, 2, 0.1, 10, 0.1, 20)
+        GameState.mode = 2
+        GameState.CurrentEnemy = enemy
 
 class Enemy:
-    def __init__(self, pos: list, id, type, size, att, defe, diff):
+    def __init__(self, pos: list, id, type, size: int, att, defe, diff):
         self.pos = pos
         self.id = id
         self.type = type
@@ -167,14 +138,42 @@ class Enemy:
 
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.size, self.size)
 
+# Init
+pygame.init()
+GameState = GameStateManager()
+
+# Konstanten
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+TILE_SIZE = 10  # Neue Größe der Tiles
+
+# Farben
+WHITE = (255, 255, 255)
+GRAY = (100, 100, 100)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+
+# Fenster erstellen
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Blast Adventures")
+
+# Map generation
+image_path = "maps/map1.png"  # Ersetze dies durch deinen Dateipfad
+array = image_to_array(image_path)
+game_map = array
+
+# Spieler starten
+player_pos = [TILE_SIZE * 2, TILE_SIZE * 2]  # Startposition
+speed = 60 # FPS
+
+# PLAYER Init
+PLAYER = Player([10, 10], "Player1", TILE_SIZE - 1, 1.0, "melee", 0, 100, 2, 0.1, 10, 0.1, 20)
+
+# Debug Init
+GlobalDevEnemy = Enemy([10, 10], 0, "melee", 20, 10, 40, 1.0)
 
 
-
-
-MODE = 4
-
+#Clock
 clock = pygame.time.Clock()
-
 game = True
 
 while game:
@@ -185,55 +184,54 @@ while game:
         if event.type == pygame.QUIT:
             game = False
 
-    
 
-    if MODE == 1:
-        # running_mode for gameplay
-        running_mode()
+    if GameState.mode == 1:
+        # RunningMode for gameplay
+        RunningMode()
 
         # Check for mode switch with '3' key
         keys = pygame.key.get_pressed()
         if keys[pygame.K_2]:
-            MODE = 2
+            GameState.mode = 2
         if keys[pygame.K_3]:
-            MODE = 3
+            GameState.mode = 3
         if keys[pygame.K_4]:
-            MODE = 4
+            GameState.mode = 4
 
-    if MODE == 2:
-        fighting_mode(Enemy1????)
+    if GameState.mode == 2:
+        FightingMode(GameState.CurrentEnemy)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:
-            MODE = 1
+            GameState.mode = 1
         if keys[pygame.K_3]:
-            MODE = 3
+            GameState.mode = 3
         if keys[pygame.K_4]:
-            MODE = 4
+            GameState.mode = 4
 
-    if MODE == 3:
+    if GameState.mode == 3:
         # end screen mode
-        end_screen_mode()
+        EndScreenMode()
 
         # Check for mode switch back to 1 with '1' key
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:
-            MODE = 1
+            GameState.mode = 1
         if keys[pygame.K_2]:
-            MODE = 2
+            GameState.mode = 2
         if keys[pygame.K_4]:
-            MODE = 4
+            GameState.mode = 4
 
-    if MODE == 4:
-            title_screen_mode()
+    if GameState.mode == 4:
+            TitleScreenMode()
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_1]:
-                MODE = 1
+                GameState.mode = 1
             if keys[pygame.K_2]:
-                MODE = 2
+                GameState.mode = 2
             if keys[pygame.K_3]:
-                MODE = 3
+                GameState.mode = 3
 
 
 # Beenden
