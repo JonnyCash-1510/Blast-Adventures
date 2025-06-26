@@ -1,0 +1,6 @@
+1. 4 Richtungs Artworks (Nach oben links recht und unten schauend):
+    - Pokemon style
+    - 4 Verschiedene Charaktäre (Such du dir aus wen wir spielen)
+2. Hintergrund Artworks für Kampfmodus 
+3. Effekt-Artworks (einzelne Bilder mit transparentem Hintergrund)
+4. Tile Artworks für Boden (Graß, Wasser, Stein, Brücke)
