@@ -63,11 +63,16 @@ def RunningMode():
     pygame.draw.rect(screen, BLUE, PLAYER.rect)
 
     Enemy1 = Enemy([10, 100], 0, "melee", 20, 10, 40, 1.2)
+    Enemy2 = Enemy([100, 200], 1, "melee", 20, 10, 40, 1.2)
+    GameState.enemies.append(Enemy1)
+    GameState.enemies.append(Enemy2)
     pygame.draw.rect(screen, BLACK, Enemy1.rect)
+    pygame.draw.rect(screen, BLACK, Enemy2.rect)
 
-    if PLAYER.rect.colliderect(Enemy1.rect):
-        GameState.CurrentEnemy = Enemy1
-        GameState.mode = 2
+    for enemy in GameState.enemies:
+        if PLAYER.rect.colliderect(enemy):
+            GameState.CurrentEnemy = enemy
+            GameState.mode = 2
 
     pygame.display.flip()
 
@@ -103,7 +108,7 @@ def FightingMode(Enemy):
     )
     pygame.draw.rect(screen, BLUE, player_rect)
 
-    print(Enemy.size)
+    print(GameState.CurrentEnemy.id)  # type: ignore
 
     pygame.display.flip()
 
@@ -119,8 +124,9 @@ def FightingMode(Enemy):
 # Klassen
 class GameStateManager:
     def __init__(self):
-        self.mode = 4
+        self.mode = 1
         self.CurrentEnemy: Optional[Enemy] = None
+        self.enemies = []
 
 
 class Player:
