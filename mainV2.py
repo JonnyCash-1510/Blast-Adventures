@@ -59,9 +59,17 @@ class Game:
             self.gameMap,
             self.enemyManager,
         )
+        self.fight = Fight(
+            self.screen, self.gameStateManager, self.PLAYER, self.enemyManager
+        )
         self.end = End(self.screen, self.gameStateManager)
 
-        self.states = {"start": self.start, "level": self.level, "end": self.end}
+        self.states = {
+            "start": self.start,
+            "level": self.level,
+            "fight": self.fight,
+            "end": self.end,
+        }
 
         self.enemyManager.createEnemy()
 
@@ -147,14 +155,27 @@ class Level:
         # Spieler zeichnen
         pygame.draw.rect(self.display, BLUE, self.PLAYER.rect)
 
+        #! check Enemy Collision once / frame
+
         for enemy in self.enemyManager.allEnemies:
             if self.PLAYER.rect.colliderect(enemy):
-                self.gameStateManager.CurrentEnemy = enemy
-                self.gameStateManager.mode = 2
+                self.gameStateManager.setCurrentEnemy(enemy)
+                self.gameStateManager.setState("fight")
 
         self.enemyManager.renderEnemies()
 
         pygame.display.flip()
+
+
+class Fight:
+    def __init__(self, display, gamestateManager, PLAYER, enemyManager):
+        self.display = display
+        self.gameStateManager = gamestateManager
+        self.PLAYER = PLAYER
+        self.enemyManager = enemyManager
+
+    def run(self):
+        self.display.fill("red")
 
 
 class Start:
@@ -264,7 +285,6 @@ class EnemyManager:
     def __init__(self, gameStateManager, display):
         self.gameStateManager = gameStateManager
         self.allEnemies = []
-        self.currentEnemy: Optional[Enemy] = None
         self.display = display
 
         # Todo enemys can only spawn in said coordinates
