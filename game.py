@@ -33,7 +33,6 @@ class Game:
             10,
             0.1,
             20,
-            self.gameStateManager,
         )
 
         # Map generation

@@ -18,7 +18,6 @@ class Player:
         att: int,
         cp: float,
         defe: int,
-        gameStateManager: GameStateManager,
     ):
         self.name = name
         self.pos = pos
@@ -32,6 +31,5 @@ class Player:
         self.att = att
         self.cp = cp
         self.defe = defe
-        self.gameStateManager = gameStateManager
 
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.size, self.size)
