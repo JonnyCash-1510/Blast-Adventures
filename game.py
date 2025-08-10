@@ -4,7 +4,7 @@ import pygame
 
 from classes import Player
 from classes.gamestates import End, Fight, Level, Start
-from classes.managers import EnemyManager, GameStateManager
+from classes.managers import EnemyManager, GameEventManager, GameStateManager
 from constants import *
 from modules.map_converter import image_to_array
 
@@ -18,6 +18,7 @@ class Game:
 
         self.gameStateManager = GameStateManager("start")
         self.enemyManager = EnemyManager(self.gameStateManager, self.screen)
+        self.gameEventManager = GameEventManager(self.enemyManager)
 
         self.PLAYER = Player(
             [10, 10],
@@ -60,10 +61,10 @@ class Game:
             "end": self.end,
         }
 
-        self.enemyManager.createEnemy()
+        # self.enemyManager.createEnemy()
 
-        #! debug
-        print(self.enemyManager.allEnemies[0].type)
+        # #! debug
+        # print(self.enemyManager.allEnemies[0].type)
 
     # Gameloop
     def run(self):
@@ -77,6 +78,9 @@ class Game:
                     self.gameStateManager.setState("level")
 
             self.states[self.gameStateManager.getState()].run()
+
+            self.gameEventManager.timer()
+            self.gameEventManager.enemySpawner()
 
             pygame.display.update()
             self.clock.tick(FPS)

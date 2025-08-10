@@ -35,10 +35,3 @@ class Player:
         self.gameStateManager = gameStateManager
 
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.size, self.size)
-
-    def engage(
-        self,
-        enemy,
-    ):
-        self.gameStateManager.setState("fight")
-        self.gameStateManager.currentEnemy = enemy
