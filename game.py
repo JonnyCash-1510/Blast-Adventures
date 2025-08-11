@@ -2,11 +2,10 @@ import sys
 
 import pygame
 
-from classes import Player
+from classes import Map, Player
 from classes.gamestates import End, Fight, Level, Start
 from classes.managers import EnemyManager, GameEventManager, GameStateManager
 from constants import *
-from modules.map_converter import image_to_array
 
 
 class Game:
@@ -16,7 +15,9 @@ class Game:
         self.screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
         self.clock = pygame.time.Clock()
 
-        self.gameStateManager = GameStateManager("start")
+        self.map1 = Map("assets/maps/map2.png")
+
+        self.gameStateManager = GameStateManager("start", self.map1.imageToArray())
         self.enemyManager = EnemyManager(self.gameStateManager, self.screen)
         self.gameEventManager = GameEventManager(self.enemyManager)
 
@@ -35,17 +36,11 @@ class Game:
             20,
         )
 
-        # Map generation
-        image_path = "assets/maps/map2.png"  # Ersetze dies durch deinen Dateipfad
-        array = image_to_array(image_path)
-        self.gameMap = array
-
         self.start = Start(self.screen, self.gameStateManager)
         self.level = Level(
             self.screen,
             self.gameStateManager,
             self.PLAYER,
-            self.gameMap,
             self.enemyManager,
         )
         self.fight = Fight(

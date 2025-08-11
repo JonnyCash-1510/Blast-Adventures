@@ -1,6 +1,7 @@
 class GameStateManager:
-    def __init__(self, currentState):
+    def __init__(self, currentState, map):
         self.currentState = currentState
+        self.currentMap = map
 
     def getState(self):
         return self.currentState
@@ -13,3 +14,6 @@ class GameStateManager:
 
     def setCurrentEnemy(self, currentEnemy):
         self.currentEnemy = currentEnemy
+
+    def setMap(self, map):
+        self.currentMap = map

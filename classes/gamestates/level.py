@@ -6,12 +6,12 @@ TILE_SIZE = 10  # Neue Größe der Tiles
 
 
 class Level:
-    def __init__(self, display, gameStateManager, PLAYER, gameMap, enemyManager):
+    def __init__(self, display, gameStateManager, PLAYER, enemyManager):
         self.display = display
         self.gameStateManager = gameStateManager
         self.enemyManager = enemyManager
 
-        self.gameMap = gameMap
+        self.gameMap = self.gameStateManager.currentMap
         self.PLAYER = PLAYER
 
     def run(self):
