@@ -6,10 +6,13 @@ TILE_SIZE = 10  # Neue Größe der Tiles
 
 
 class Level:
-    def __init__(self, display, gameStateManager, PLAYER, enemyManager):
+    def __init__(
+        self, display, gameStateManager, PLAYER, enemyManager, gameEventManager
+    ):
         self.display = display
         self.gameStateManager = gameStateManager
         self.enemyManager = enemyManager
+        self.gameEventManager = gameEventManager
 
         self.gameMap = self.gameStateManager.currentMap
         self.PLAYER = PLAYER
@@ -72,6 +75,9 @@ class Level:
             if self.PLAYER.rect.colliderect(enemy):
                 self.gameStateManager.setCurrentEnemy(enemy)
                 self.gameStateManager.setState("fight")
+
+        self.gameEventManager.timer()
+        self.gameEventManager.enemySpawner()
 
         self.enemyManager.renderEnemies()
 

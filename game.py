@@ -3,8 +3,8 @@ import sys
 import pygame
 
 from classes import Map, Player
-from classes.gamestates import End, Fight, Level, Start
-from classes.managers import EnemyManager, GameEventManager, GameStateManager
+from classes.gamestates import End, Fight, Level, Shop, Start
+from classes.managers import Economy, EnemyManager, GameEventManager, GameStateManager
 from constants import *
 
 
@@ -21,6 +21,7 @@ class Game:
         self.enemyManager = EnemyManager(self.gameStateManager, self.screen)
         self.gameEventManager = GameEventManager(self.enemyManager)
 
+        self.itemsIsLoaded = False
         self.PLAYER = Player(
             [10, 10],
             "Player1",
@@ -36,23 +37,27 @@ class Game:
             20,
         )
 
+        self.economy = Economy(self.PLAYER)
+
         self.start = Start(self.screen, self.gameStateManager)
         self.level = Level(
             self.screen,
             self.gameStateManager,
             self.PLAYER,
             self.enemyManager,
+            self.gameEventManager,
         )
         self.fight = Fight(
             self.screen, self.gameStateManager, self.PLAYER, self.enemyManager
         )
         self.end = End(self.screen, self.gameStateManager)
-
+        self.shop = Shop(self.screen, self.gameStateManager, self.PLAYER, self.economy)
         self.states = {
             "start": self.start,
             "level": self.level,
             "fight": self.fight,
             "end": self.end,
+            "shop": self.shop,
         }
 
         # self.enemyManager.createEnemy()
@@ -63,19 +68,21 @@ class Game:
     # Gameloop
     def run(self):
         while True:
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
-                if event.type == pygame.KEYDOWN:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_p]:
+                    self.gameStateManager.setState("shop")
+                if keys[pygame.K_SPACE]:
                     self.gameStateManager.setState("level")
 
             self.states[self.gameStateManager.getState()].run()
 
-            self.gameEventManager.timer()
-            self.gameEventManager.enemySpawner()
-
+            self.gameEventManager.gameTimer()
             pygame.display.update()
             self.clock.tick(FPS)
 

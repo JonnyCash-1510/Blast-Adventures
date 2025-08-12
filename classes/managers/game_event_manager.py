@@ -8,8 +8,10 @@ class GameEventManager:
         self.spawnTimer = 0
         self.enemyManager = enemyManager
 
-    def timer(self):
+    def gameTimer(self):
         self.gameTime += 1
+
+    def timer(self):
         self.secondsTime = self.gameTime / 60
         self.spawnTimer += 1
 
