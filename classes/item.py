@@ -14,6 +14,10 @@ class Item:
         self.attS = attS
         self.cpS = cpS
         self.defeS = defeS
+        self.available = True
 
     def isUnlocked(self):
         self.locked = False
+
+    def isAvailable(self):
+        return self.available
