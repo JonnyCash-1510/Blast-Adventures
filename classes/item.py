@@ -1,12 +1,25 @@
 class Item:
     def __init__(
-        self, cost, xpBorder, locked, name, type, hpS, speedS, dodgeS, attS, cpS, defeS
+        self,
+        cost,
+        xpBorder,
+        locked,
+        name,
+        type,
+        hpS,
+        speedS,
+        dodgeS,
+        attS,
+        cpS,
+        defeS,
+        texture,
     ):
         self.cost = cost
         self.xpBorder = xpBorder
         self.locked = locked
         self.name = name
         self.type = type
+        self.texture = texture
 
         self.hpS = hpS
         self.speedS = speedS

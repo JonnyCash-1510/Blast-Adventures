@@ -17,7 +17,7 @@ class Game:
 
         self.map1 = Map("assets/maps/map2.png")
 
-        self.gameStateManager = GameStateManager("start", self.map1.imageToArray())
+        self.gameStateManager = GameStateManager("shop", self.map1.imageToArray())
         self.enemyManager = EnemyManager(self.gameStateManager, self.screen)
         self.gameEventManager = GameEventManager(self.enemyManager)
 
