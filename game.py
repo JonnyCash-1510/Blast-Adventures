@@ -60,11 +60,6 @@ class Game:
             "shop": self.shop,
         }
 
-        # self.enemyManager.createEnemy()
-
-        # #! debug
-        # print(self.enemyManager.allEnemies[0].type)
-
     # Gameloop
     def run(self):
         while True:
@@ -74,6 +69,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+                # ToDo change this
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_p]:
                     self.gameStateManager.setState("shop")
