@@ -136,7 +136,7 @@ class Shop:
         screenWidth, screenHeight = self.display.get_size()
 
         font = pygame.font.SysFont("arial", 100)
-        textSurface = font.render("-- THE SHOP --", True, "black")
+        textSurface = font.render(" -- THE SHOP -- ", True, "black")
         textRect = textSurface.get_rect()
         textRect.center = (screenWidth / 2, 75)
 
