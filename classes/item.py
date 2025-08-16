@@ -1,3 +1,6 @@
+import pygame
+
+
 class Item:
     def __init__(
         self,
@@ -20,6 +23,7 @@ class Item:
         self.name = name
         self.type = type
         self.texture = texture
+        self.rect: pygame.Rect = pygame.Rect(0, 0, 0, 0)
 
         self.hpS = hpS
         self.speedS = speedS

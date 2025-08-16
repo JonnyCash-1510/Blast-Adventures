@@ -13,11 +13,22 @@ class Shop:
         self.gameStateManager = gameStateManager
         self.shopActive = True
 
+        self.screenWidth, self.screenHeight = self.display.get_size()
+
+        self.paddingX = 100
+        self.paddingTop = 150
+
+        self.itemSize = 120
+        self.itemGap = 216 - self.itemSize
+
+        # Y position stays constant (center vertically)
+        self.yPos = self.paddingTop
+
         # declare all available items:
         swordI = Item(
             10,
             0,
-            False,
+            True,
             "Sword",
             "melee",
             1,
@@ -88,49 +99,53 @@ class Shop:
         self.gameStateManager.setState("level")
 
     def drawItems(self):  # CHATGPTs work :D
-        screenWidth, screenHeight = self.display.get_size()
-
-        paddingX = 100
-        paddingTop = 150
-
-        itemSize = 120
-        itemGap = 216 - itemSize
-
-        # Y position stays constant (center vertically)
-        yPos = paddingTop
 
         # row 1
         for i, item in enumerate(self.itemRow1):
 
-            xPos = paddingX + i * (itemSize + itemGap)
+            xPos = self.paddingX + i * (self.itemSize + self.itemGap)
 
             # Draw item box
-            rect = pygame.Rect(xPos, yPos, itemSize, itemSize)
+            rect = pygame.Rect(xPos, self.yPos, self.itemSize, self.itemSize)
 
-            # if item.locked == True:
-            #     color = (150, 150, 150)  # Greyed out -- locked
-            # elif item.locked == False and item.isAvailable() == False:
-            #     color = (100, 100, 100)  # bought
-            # else:
-            #     color = (0, 200, 0)  # Green for available
-
-            # pygame.draw.rect(self.display, color, rect, border_radius=5)
+            item.rect = rect
 
             textureSurface = pygame.image.load(item.texture).convert()
             scaledTextureSurface = pygame.transform.scale(
-                textureSurface, (itemSize, itemSize)
+                textureSurface, (self.itemSize, self.itemSize)
             )
 
-            self.display.blit(scaledTextureSurface, (xPos, yPos))
+            self.display.blit(scaledTextureSurface, (xPos, self.yPos))
 
-            # Draw item name centered
             font = pygame.font.SysFont("arial", 24)
             textSurface = font.render(item.name, True, (0, 0, 0))
-            textRect = textSurface.get_rect(midtop=(rect.centerx, rect.bottom))
 
-            pygame.draw.rect(self.display, (150, 150, 150), textRect)
+            if item.locked:
+                lockTexture = pygame.image.load(
+                    "./assets/textures/lock.png"
+                ).convert_alpha()
+                scaledLockTexture = pygame.transform.scale(
+                    lockTexture, (self.itemSize, self.itemSize)
+                )
+                self.display.blit(scaledLockTexture, (xPos, self.yPos))
 
-            self.display.blit(textSurface, textRect)
+                greyedOutRect = pygame.Surface((self.itemSize, self.itemSize))
+                greyedOutRect.set_alpha(150)
+                greyedOutRect.fill((0, 0, 0))
+                self.display.blit(greyedOutRect, (xPos, self.yPos))
+
+            elif item.isAvailable():
+                # Draw item name centered
+                textRect = textSurface.get_rect(
+                    midtop=(item.rect.centerx, item.rect.bottom)
+                )
+                pygame.draw.rect(self.display, (150, 150, 150), textRect)
+                self.display.blit(textSurface, textRect)
+            else:
+                greyedOutRect = pygame.Surface((self.itemSize, self.itemSize))
+                greyedOutRect.set_alpha(170)
+                greyedOutRect.fill((0, 0, 0))
+                self.display.blit(greyedOutRect, (xPos, self.yPos))
 
     def drawShop(self):
         screenWidth, screenHeight = self.display.get_size()
@@ -149,14 +164,26 @@ class Shop:
         self.display.blit(textSurface, textRect)
 
     def run(self):
-        if self.shopActive == True:
-            for item in self.allItems:
-                if item.locked == False:
-                    # display item
-                    pass
-                else:
-                    # display item as locked
-                    pass
+        if self.shopActive:
+            #! display Shop here
+            self.display.fill("white")
+            self.drawShop()
+
+            self.drawItems()
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for item in self.allItems:
+                        if item.rect.collidepoint(event.pos):
+                            #!TRIES TO BUY ITEM
+                            buy = self.economy.buyItem(item)
+                            if buy != 0:  # ERROR NOT BOUGHT
+                                print("ITEM LOCKED OR ALREADY BOUGHT")
+                            else:
+                                print(f"ITEM BOUGHT: {item.name}")
+                                print(f"YOU CURRENTLY OWN THESE ITEMS: ")
+                                for i in self.player.items:
+                                    print(i.name)
 
             keys = pygame.key.get_pressed()
 
@@ -178,10 +205,4 @@ class Shop:
                     # time.sleep(3)
                     self.closeShop()
 
-        #! display Shop here
-        self.display.fill("white")
-        self.drawShop()
-
-        self.drawItems()
-
-        pygame.display.flip()
+            pygame.display.flip()
