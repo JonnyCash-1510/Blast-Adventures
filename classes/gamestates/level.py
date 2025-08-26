@@ -2,7 +2,7 @@ import pygame
 
 from constants import *
 
-TILE_SIZE = 10  # Neue Größe der Tiles
+TILE_SIZE = 40  # Neue Größe der Tiles
 
 
 class Level:
@@ -16,6 +16,32 @@ class Level:
 
         self.gameMap = self.gameStateManager.currentMap
         self.PLAYER = PLAYER
+
+        # LOAD TEXTURES
+        self.floorTexture = pygame.image.load(
+            "./assets/textures/floor/cobble_blood_1_old.png"
+        ).convert()
+        self.floorTexture = pygame.transform.scale(
+            self.floorTexture, (TILE_SIZE, TILE_SIZE)
+        )
+
+        self.dirtTexture1 = pygame.image.load(
+            "./assets/textures/floor/dirt_0_new.png"
+        ).convert()
+        self.dirtTexture1 = pygame.transform.scale(
+            self.dirtTexture1, (TILE_SIZE, TILE_SIZE)
+        )
+
+    def buildMapSurface(self):
+        mapSurface = pygame.Surface(self.display.get_size())
+        for y, row in enumerate(self.gameMap):
+            for x, tile in enumerate(row):
+                rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                if tile == 1:
+                    mapSurface.blit(self.floorTexture, rect)
+                else:
+                    mapSurface.blit(self.dirtTexture1, rect)
+        return mapSurface
 
     def run(self):
         keys = pygame.key.get_pressed()
@@ -58,16 +84,11 @@ class Level:
         self.display.fill(BLACK)
 
         # Map zeichnen
-        for y, row in enumerate(self.gameMap):
-            for x, tile in enumerate(row):
-                rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                if tile == 1:
-                    pygame.draw.rect(self.display, GRAY, rect)
-                else:
-                    pygame.draw.rect(self.display, WHITE, rect)
+        self.mapSurface = self.buildMapSurface()
+        self.display.blit(self.mapSurface, (0, 0))
 
         # Spieler zeichnen
-        pygame.draw.rect(self.display, BLUE, self.PLAYER.rect)
+        pygame.draw.rect(self.display, WHITE, self.PLAYER.rect)
 
         #! check Enemy Collision once / frame
 

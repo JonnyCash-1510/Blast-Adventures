@@ -17,13 +17,13 @@ class Game:
 
         self.map1 = Map("assets/maps/map2.png")
 
-        self.gameStateManager = GameStateManager("shop", self.map1.imageToArray())
+        self.gameStateManager = GameStateManager("level", self.map1.imageToArray())
         self.enemyManager = EnemyManager(self.gameStateManager, self.screen)
         self.gameEventManager = GameEventManager(self.enemyManager)
 
         self.itemsIsLoaded = False
         self.PLAYER = Player(
-            [10, 10],
+            [40, 40],
             "Player1",
             TILE_SIZE - 1,
             1.0,

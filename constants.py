@@ -8,3 +8,6 @@ WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+
+# * Map Pixel Size:
+# * 32x18
