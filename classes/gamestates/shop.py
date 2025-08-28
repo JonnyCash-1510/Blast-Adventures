@@ -1,4 +1,5 @@
 import random
+import time
 
 import pygame
 
@@ -12,6 +13,8 @@ class Shop:
         self.display = display
         self.gameStateManager = gameStateManager
         self.shopActive = True
+
+        self.enteredFrom = None
 
         self.screenWidth, self.screenHeight = self.display.get_size()
 
@@ -166,7 +169,7 @@ class Shop:
     def run(self):
         if self.shopActive:
             #! display Shop here
-            self.display.fill("white")
+
             self.drawShop()
 
             self.drawItems()
@@ -184,6 +187,18 @@ class Shop:
                                 print(f"YOU CURRENTLY OWN THESE ITEMS: ")
                                 for i in self.player.items:
                                     print(i.name)
+
+                                # ToDo ITEM BOUGHT SCREEN
+
+                                if self.enteredFrom == "right":
+                                    self.player.pos[0] += 5
+                                elif self.enteredFrom == "left":
+                                    self.player.pos[0] -= 5
+                                if self.enteredFrom == "top":
+                                    self.player.pos[1] -= 5
+                                elif self.enteredFrom == "bottom":
+                                    self.player.pos[1] += 5
+                                self.gameStateManager.setState("level")
 
             keys = pygame.key.get_pressed()
 

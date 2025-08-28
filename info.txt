@@ -1,0 +1,18 @@
+INFO FOR CODING DECISIONS AND MORE
+
+Map Pixel Size:
+32x18
+
+stat list structure:
+[id, pos, type, size, att, defe, diff]
+
+link to texture bank (source): https://opengameart.org/content/dungeon-crawl-32x32-tiles-supplemental
+
+
+TEXTURE MAPPING:
+
+Code - name - (r g b)
+0 - wall (0 0 0)            black
+1 - dirt (255 255 255)      white
+2 - closed shop (0 200 0)   darker green
+3 - open shop (0 255 0)     bright green

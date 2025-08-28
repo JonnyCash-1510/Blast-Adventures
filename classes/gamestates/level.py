@@ -2,35 +2,35 @@ import pygame
 
 from constants import *
 
-TILE_SIZE = 40  # Neue Größe der Tiles
-
 
 class Level:
     def __init__(
-        self, display, gameStateManager, PLAYER, enemyManager, gameEventManager
+        self, display, gameStateManager, PLAYER, enemyManager, gameEventManager, shop
     ):
         self.display = display
         self.gameStateManager = gameStateManager
         self.enemyManager = enemyManager
         self.gameEventManager = gameEventManager
+        self.shop = shop
 
         self.gameMap = self.gameStateManager.currentMap
         self.PLAYER = PLAYER
 
         # LOAD TEXTURES
-        self.floorTexture = pygame.image.load(
-            "./assets/textures/floor/cobble_blood_1_old.png"
-        ).convert()
-        self.floorTexture = pygame.transform.scale(
-            self.floorTexture, (TILE_SIZE, TILE_SIZE)
-        )
 
-        self.dirtTexture1 = pygame.image.load(
-            "./assets/textures/floor/dirt_0_new.png"
-        ).convert()
-        self.dirtTexture1 = pygame.transform.scale(
-            self.dirtTexture1, (TILE_SIZE, TILE_SIZE)
-        )
+        self.floorTtr = self.loadTextureAsTtr("floor/cobble_blood_1_old.png")
+
+        self.dirtTtr1 = self.loadTextureAsTtr("floor/dirt_0_new.png")
+
+        self.closedShopTtr = self.loadTextureAsTtr("shop/abandoned_shop.png")
+
+        self.openedShopTtr = self.loadTextureAsTtr("shop/enter_shop.png")
+
+    def loadTextureAsTtr(self, path):
+        path = "./assets/textures/" + path
+        texture = pygame.image.load(path).convert()
+        texture = pygame.transform.scale(texture, (TILE_SIZE, TILE_SIZE))
+        return texture
 
     def buildMapSurface(self):
         mapSurface = pygame.Surface(self.display.get_size())
@@ -38,10 +38,23 @@ class Level:
             for x, tile in enumerate(row):
                 rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 if tile == 1:
-                    mapSurface.blit(self.floorTexture, rect)
-                else:
-                    mapSurface.blit(self.dirtTexture1, rect)
+                    mapSurface.blit(self.floorTtr, rect)
+                elif tile == 0:
+                    mapSurface.blit(self.dirtTtr1, rect)
+                elif tile == 2:
+                    mapSurface.blit(self.closedShopTtr, rect)
+                elif tile == 3:
+                    mapSurface.blit(self.openedShopTtr, rect)
         return mapSurface
+
+    def detectPlayerCollision(
+        self, x, y
+    ):  # DETECTS IF PLAYER COLLIDES WITH A CERTAIN TILE IN MAP-ARRAY (X & Y COORDS FROM ARRAY REPRESENTS A TILE ON MAP)
+        rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+        if self.PLAYER.rect.colliderect(rect):
+            return True
+        else:
+            return False
 
     def run(self):
         keys = pygame.key.get_pressed()
@@ -67,12 +80,40 @@ class Level:
         for y, row in enumerate(self.gameMap):
             for x, tile in enumerate(row):
                 if tile == 1:  # Wand
-                    wall_rect = pygame.Rect(
-                        x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE
-                    )
-                    if self.PLAYER.rect.colliderect(wall_rect):
+                    if self.detectPlayerCollision(x, y):
                         collided = True
                         break
+                if tile == 2:  # Closed Shop
+                    if self.detectPlayerCollision(x, y):
+                        # ToDo create screen that displays the shop is closed still
+                        print("cant enter... still closed")
+                        collided = True
+                        break
+                if tile == 3:  # Opened Shop
+                    if self.detectPlayerCollision(x, y):
+                        shopRect = pygame.Rect(
+                            x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE
+                        )
+                        if self.PLAYER.rect.colliderect(shopRect):
+                            # Get distances from each side of the shop
+                            left_dist = abs(self.PLAYER.rect.right - shopRect.left)
+                            right_dist = abs(self.PLAYER.rect.left - shopRect.right)
+                            top_dist = abs(self.PLAYER.rect.bottom - shopRect.top)
+                            bottom_dist = abs(self.PLAYER.rect.top - shopRect.bottom)
+
+                            # Find the smallest overlap → that's the side the player entered from
+                            min_dist = min(left_dist, right_dist, top_dist, bottom_dist)
+
+                            if min_dist == left_dist:
+                                self.shop.enteredFrom = "left"
+                            elif min_dist == right_dist:
+                                self.shop.enteredFrom = "right"
+                            elif min_dist == top_dist:
+                                self.shop.enteredFrom = "top"
+                            elif min_dist == bottom_dist:
+                                self.shop.enteredFrom = "bottom"
+
+                            self.gameStateManager.setState("shop")
             if collided:
                 break
 
@@ -90,7 +131,7 @@ class Level:
         # Spieler zeichnen
         pygame.draw.rect(self.display, WHITE, self.PLAYER.rect)
 
-        #! check Enemy Collision once / frame
+        # * check Enemy Collision once / frame
 
         for enemy in self.enemyManager.allEnemies:
             if self.PLAYER.rect.colliderect(enemy):

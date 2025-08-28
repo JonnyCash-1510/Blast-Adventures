@@ -28,11 +28,14 @@ class Map:
                 if a == 0:
                     result_array[y, x] = 0  # Transparent als Weiß behandeln (0)
                 else:
-                    # Umwandeln: Schwarz (0) wird zu 1, Weiß (255) wird zu 0
-                    # RGB-Werte vergleichen, um zu sehen, ob der Pixel schwarz oder weiß ist
+                    # ADD NEW TEXTURES TO THE BOTTOM (WRITE INTO INFO.TXT FILE FOR DOCUMENTATION)
                     if r == 0 and g == 0 and b == 0:
                         result_array[y, x] = 1  # Schwarz wird zu 1
                     elif r == 255 and g == 255 and b == 255:
                         result_array[y, x] = 0  # Weiß bleibt 0
+                    elif r == 0 and g == 200 and b == 0:
+                        result_array[y, x] = 2
+                    elif r == 0 and g == 255 and b == 0:
+                        result_array[y, x] = 3
 
         return result_array

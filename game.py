@@ -25,7 +25,7 @@ class Game:
         self.PLAYER = Player(
             [40, 40],
             "Player1",
-            TILE_SIZE - 1,
+            10,
             1.0,
             "melee",
             0,
@@ -38,7 +38,7 @@ class Game:
         )
 
         self.economy = Economy(self.PLAYER)
-
+        self.shop = Shop(self.screen, self.gameStateManager, self.PLAYER, self.economy)
         self.start = Start(self.screen, self.gameStateManager)
         self.level = Level(
             self.screen,
@@ -46,12 +46,13 @@ class Game:
             self.PLAYER,
             self.enemyManager,
             self.gameEventManager,
+            self.shop,
         )
         self.fight = Fight(
             self.screen, self.gameStateManager, self.PLAYER, self.enemyManager
         )
         self.end = End(self.screen, self.gameStateManager)
-        self.shop = Shop(self.screen, self.gameStateManager, self.PLAYER, self.economy)
+
         self.states = {
             "start": self.start,
             "level": self.level,
