@@ -1,0 +1,16 @@
+Goal of the Game: get 5 chests to your base as fast as possible
+
+
+Engage:
+we attack a monster that possesses and defends a chest (the gold we get from winning or grab the chest and safe it to you base)
+if you win: get chest or the gold from it
+lose: lose all the chests you currently have + all the gold thats not in items
+
+-- You have to estimate if getting the gold first to get items and win more fights is better than grabbing the chest but maybe losing it on your way back to base
+-- GET ALL CHESTS TO BASE AS FAST AS POSSIBLE so dont buy to many items because you would lose time going into the shop and running back to the enemys
+
+Fight:
+- 3 abilitys (stuns(mark so bonus damage), shields, attacks)
+- you and monster take turns of what to do
+- pokemon style
+- once enemy is slain --> chest_choice

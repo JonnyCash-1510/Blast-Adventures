@@ -11,6 +11,7 @@ class Enemy:
         att,
         defe,
         diff,
+        hp,
     ):
         self.pos = pos
         self.id = id
@@ -18,5 +19,6 @@ class Enemy:
         self.size = size
         self.att = att * diff
         self.defe = defe * diff
+        self.hp = hp
 
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.size, self.size)

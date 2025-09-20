@@ -14,8 +14,8 @@ class EnemyManager:
 
         # Todo enemys can only spawn in said coordinates
         self.allStats = [
-            [0, [10, 100], "melee", 30, 10, 40, 1.2],
-            [1, [100, 100], "longRange", 15, 15, 25, 1.2],
+            [0, [10, 100], "melee", 30, 10, 40, 1.2, 10],
+            [1, [100, 100], "longRange", 15, 15, 25, 1.2, 8],
         ]
 
     def createEnemy(self):
@@ -33,6 +33,7 @@ class EnemyManager:
             stats[4],
             stats[5],
             stats[6],
+            stats[7],
         )
 
         self.allEnemies.append(enemy)

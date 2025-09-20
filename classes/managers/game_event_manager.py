@@ -16,6 +16,6 @@ class GameEventManager:
         self.spawnTimer += 1
 
     def enemySpawner(self):
-        if self.spawnTimer > 600:
+        if self.spawnTimer > 5 * 60:  # first value is seconds
             self.enemyManager.createEnemy()
             self.spawnTimer = 0

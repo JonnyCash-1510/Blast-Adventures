@@ -1,5 +1,4 @@
-player.xp value
-player.PlayerMoney value
-
-item class with values xpBorder, locked, cost, stats
-
+- Camera Zoom + slower movementspeed
+- chests and monster spawns
+- A BASE
+- 
