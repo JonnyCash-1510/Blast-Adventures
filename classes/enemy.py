@@ -2,17 +2,7 @@ import pygame
 
 
 class Enemy:
-    def __init__(
-        self,
-        id,
-        pos: list,
-        type,
-        size: int,
-        att,
-        defe,
-        diff,
-        hp,
-    ):
+    def __init__(self, id, pos: list, type, size: int, att, defe, diff, hp, spawnID):
         self.pos = pos
         self.id = id
         self.type = type
@@ -20,5 +10,6 @@ class Enemy:
         self.att = att * diff
         self.defe = defe * diff
         self.hp = hp
+        self.spawnID = spawnID
 
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.size, self.size)

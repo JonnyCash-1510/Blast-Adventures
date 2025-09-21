@@ -4,11 +4,12 @@ import pygame
 
 
 class Fight:
-    def __init__(self, display, gameStateManager, player, enemyManager):
+    def __init__(self, display, gameStateManager, player, enemyManager, spawnManager):
         self.display = display
         self.gameStateManager = gameStateManager
         self.player = player
         self.enemyManager = enemyManager
+        self.spawnManager = spawnManager
 
         self.width, self.height = self.display.get_size()
 
@@ -97,7 +98,7 @@ class Fight:
         )
         # Ability buttons
         abilities = ["Slash", "Shield Bash", "Critical Strike"]
-        buttonWidth = 160
+        buttonWidth = 200
         buttonHeight = 50
         for i, ability in enumerate(abilities):
             x = 30 + i * (buttonWidth + 20)
@@ -133,9 +134,14 @@ class Fight:
     def handleTurns(self):
         if not self.fightActive:
             return
+
+        # * Checks if one side DIED
         if self.playerHp <= 0 or self.enemyHp <= 0:
             self.fightActive = False
             self.enemyManager.removeEnemy(self.currentEnemy)
+
+            self.spawnManager.clearSpawner(self.currentEnemy.spawnID)
+
             self.gameStateManager.setCurrentEnemy(None)
             return
 

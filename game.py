@@ -4,7 +4,13 @@ import pygame
 
 from classes import Map, Player
 from classes.gamestates import End, Fight, Level, Shop, Start
-from classes.managers import Economy, EnemyManager, GameEventManager, GameStateManager
+from classes.managers import (
+    Economy,
+    EnemyManager,
+    GameEventManager,
+    GameStateManager,
+    SpawnManager,
+)
 from constants import *
 
 
@@ -19,7 +25,8 @@ class Game:
 
         self.gameStateManager = GameStateManager("level", self.map1.imageToArray())
         self.enemyManager = EnemyManager(self.gameStateManager, self.screen)
-        self.gameEventManager = GameEventManager(self.enemyManager)
+        self.spawnManager = SpawnManager()
+        self.gameEventManager = GameEventManager(self.enemyManager, self.spawnManager)
 
         self.itemsIsLoaded = False
         self.PLAYER = Player(
@@ -49,7 +56,11 @@ class Game:
             self.shop,
         )
         self.fight = Fight(
-            self.screen, self.gameStateManager, self.PLAYER, self.enemyManager
+            self.screen,
+            self.gameStateManager,
+            self.PLAYER,
+            self.enemyManager,
+            self.spawnManager,
         )
         self.end = End(self.screen, self.gameStateManager)
 
@@ -60,6 +71,9 @@ class Game:
             "end": self.end,
             "shop": self.shop,
         }
+
+        # * spawn default enemys in the beginning
+        self.gameEventManager.defaultSpawn()
 
     # Gameloop
     def run(self):

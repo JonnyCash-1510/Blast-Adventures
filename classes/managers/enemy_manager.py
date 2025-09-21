@@ -14,11 +14,11 @@ class EnemyManager:
 
         # Todo enemys can only spawn in said coordinates
         self.allStats = [
-            [0, [10, 100], "melee", 30, 10, 40, 1.2, 10],
-            [1, [100, 100], "longRange", 15, 15, 25, 1.2, 8],
+            [0, "melee", 30, 10, 40, 1.2, 10],
+            [1, "longRange", 15, 15, 25, 1.2, 8],
         ]
 
-    def createEnemy(self):
+    def createEnemy(self, pos, spawnID):
 
         #! [id, pos, type, size, att, defe, diff]
         # todo chooses a random enemy from the allStats list above
@@ -27,13 +27,14 @@ class EnemyManager:
 
         enemy = Enemy(
             stats[0],
+            pos,
             stats[1],
             stats[2],
             stats[3],
             stats[4],
             stats[5],
             stats[6],
-            stats[7],
+            spawnID,
         )
 
         self.allEnemies.append(enemy)

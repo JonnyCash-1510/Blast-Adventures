@@ -2,3 +2,4 @@ from .economy import Economy
 from .enemy_manager import EnemyManager
 from .game_event_manager import GameEventManager
 from .gamestate_manager import GameStateManager
+from .spawn_manager import SpawnManager
