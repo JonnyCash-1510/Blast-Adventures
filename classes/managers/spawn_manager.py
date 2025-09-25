@@ -13,12 +13,12 @@ class SpawnManager:
         ]
 
         self.topRightSP = Spawner(self.possibleEnemySpawns[0], 4, 0)
-        self.topLeftSP = Spawner(self.possibleEnemySpawns[2], 0.1, 1)
-        self.topMidSP = Spawner(self.possibleEnemySpawns[1], 2, 2)
+        self.topMidSP = Spawner(self.possibleEnemySpawns[1], 2, 1)
+        self.topLeftSP = Spawner(self.possibleEnemySpawns[2], 0.1, 2)
 
         self.botRightSP = Spawner(self.possibleEnemySpawns[3], 9, 3)
-        self.botLeftSP = Spawner(self.possibleEnemySpawns[5], 6, 4)
-        self.botMidSP = Spawner(self.possibleEnemySpawns[4], 8, 5)
+        self.botMidSP = Spawner(self.possibleEnemySpawns[4], 8, 4)
+        self.botLeftSP = Spawner(self.possibleEnemySpawns[5], 6, 5)
 
         self.allSpawners = [
             self.topLeftSP,
@@ -30,15 +30,11 @@ class SpawnManager:
         ]
 
     def tickSpawnerTimers(self):
-        self.topRightSP.tickSpawnTimer()
-        self.topLeftSP.tickSpawnTimer()
-        self.topMidSP.tickSpawnTimer()
-
-        self.botRightSP.tickSpawnTimer()
-        self.botLeftSP.tickSpawnTimer()
-        self.botMidSP.tickSpawnTimer()
+        for spawner in self.allSpawners:
+            spawner.tickSpawnTimer()
 
     def clearSpawner(self, id):
+        """Mark a spawner as empty again and reset its timer so it waits before respawning."""
         spawner = self.allSpawners[id]
-        spawner.spawnTimer = 0
         spawner.isEmpty = True
+        spawner.spawnTimer = 0

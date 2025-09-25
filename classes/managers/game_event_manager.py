@@ -1,6 +1,3 @@
-import random
-
-
 class GameEventManager:
     def __init__(self, enemyManager, spawnManager):
         self.gameTime = 0
@@ -8,6 +5,9 @@ class GameEventManager:
 
         self.enemyManager = enemyManager
         self.spawnManager = spawnManager
+
+        # how long (in frames) before a spawner can respawn again
+        self.spawnCooldown = 20 * 60  # 20 seconds
 
     def gameTimer(self):
         self.gameTime += 1
@@ -17,11 +17,14 @@ class GameEventManager:
         self.spawnManager.tickSpawnerTimers()
 
     def enemySpawner(self):
-        for spawn in self.spawnManager.allSpawners:  #! FALSCHE LOGIK!!!!!!!
-            if spawn.isEmpty:
-                if spawn.spawnTimer % (20 * 60) == 0:  # alle 20 Sekunden
-                    self.enemyManager.createEnemy(spawn.pos, spawn.id)
+        for spawn in self.spawnManager.allSpawners:
+            if spawn.isEmpty and spawn.spawnTimer >= self.spawnCooldown:
+                self.enemyManager.createEnemy(spawn.pos, spawn.id)
+                spawn.isEmpty = False
+                spawn.spawnTimer = 0
 
     def defaultSpawn(self):
         for spawn in self.spawnManager.allSpawners:
             self.enemyManager.createEnemy(spawn.pos, spawn.id)
+            spawn.isEmpty = False
+            spawn.spawnTimer = 0
