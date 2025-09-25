@@ -1,5 +1,4 @@
 import random
-import time
 
 import pygame
 
@@ -68,7 +67,7 @@ class Shop:
             1,
             0.5,
             1,
-            "./assets/textures/items/trinket.png",
+            "./assets/textures/items/ruby_new.png",
         )
 
         maskI = Item(

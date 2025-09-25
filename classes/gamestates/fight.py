@@ -1,3 +1,4 @@
+import random
 import time
 
 import pygame
@@ -32,7 +33,7 @@ class Fight:
         self.smallFont = pygame.font.Font(None, 22)
 
         # Turn handling
-        self.turnDelay = 0.3
+        self.turnDelay = 1
         self.lastActionTime = time.time()
         self.playerTurn = False
 
@@ -40,8 +41,6 @@ class Fight:
         self.currentEnemy = None
         self.enemyMaxHp = 0
         self.enemyHp = 0
-        self.playerMaxHp = 0
-        self.playerHp = 0
 
         self.fightActive = False
 
@@ -54,23 +53,52 @@ class Fight:
             return
         self.enemyMaxHp = self.currentEnemy.hp
         self.enemyHp = self.enemyMaxHp
-        self.playerMaxHp = self.player.hp
-        self.playerHp = self.playerMaxHp
+
         self.playerTurn = False
         self.lastActionTime = time.time()
         self.fightActive = True
 
-    def drawHealthBar(self, x, y, currentHp, maxHp, barWidth=150, barHeight=14):
+    def drawHealthBar(
+        self,
+        x,
+        y,
+        currentHp,
+        maxHp,
+        dynamic=False,
+        barWidth=150,
+        barHeight=14,
+        showTicks=False,
+    ):
+        if dynamic:
+            # Scale bar for player depending on max HP
+            barWidth = int(maxHp * 1.5)
+
         ratio = max(currentHp / maxHp, 0)
+        # Outline
         pygame.draw.rect(self.display, self.BLACK, (x, y, barWidth, barHeight), 2)
+        # Background (red)
         pygame.draw.rect(
             self.display, self.RED, (x + 2, y + 2, barWidth - 4, barHeight - 4)
         )
+        # Current HP (green)
         pygame.draw.rect(
             self.display,
             self.GREEN,
             (x + 2, y + 2, int((barWidth - 4) * ratio), barHeight - 4),
         )
+
+        # Optional tick marks (every 10 HP)
+        if showTicks:
+            pixels_per_hp = (barWidth - 4) / maxHp
+            for hp_tick in range(10, maxHp, 10):  # draw at 10, 20, 30... maxHp
+                tick_x = x + 2 + int(hp_tick * pixels_per_hp)
+                pygame.draw.line(
+                    self.display,
+                    self.BLACK,
+                    (tick_x, y + 2),
+                    (tick_x, y + barHeight - 2),
+                    1,
+                )
 
     def drawPlayer(self):
         pygame.draw.rect(
@@ -81,14 +109,23 @@ class Fight:
         self.drawHealthBar(
             self.playerPos[0],
             self.playerPos[1] - 25,
-            self.playerHp,
-            self.playerMaxHp,
+            self.player.hp,
+            self.player.maxhp,
+            dynamic=True,
+            showTicks=False,
         )
 
     def drawEnemy(self):
         enemyRect = pygame.Rect(*self.enemyPos, self.enemySize, self.enemySize)
         pygame.draw.rect(self.display, (255, 0, 0), enemyRect)
-        self.drawHealthBar(enemyRect.x, enemyRect.y - 25, self.enemyHp, self.enemyMaxHp)
+        self.drawHealthBar(
+            enemyRect.x,
+            enemyRect.y - 25,
+            self.enemyHp,
+            self.enemyMaxHp,
+            dynamic=False,
+            showTicks=True,
+        )
 
     def drawBottomBar(self):
         pygame.draw.rect(
@@ -121,7 +158,7 @@ class Fight:
         )
 
         stats = [
-            f"HP: {self.playerHp}/{self.playerMaxHp}",
+            f"HP: {self.player.hp}/{self.player.maxhp}",
             f"ATK: {self.player.att}",
             f"DEF: {self.player.defe}",
             f"CRIT: {int(self.player.cp * 100)}%",
@@ -131,30 +168,54 @@ class Fight:
             statSurface = self.smallFont.render(stat, True, self.BLACK)
             self.display.blit(statSurface, (statsX + 10, statsY + 10 + i * 22))
 
+    def rollProbability(self, prob: float) -> bool:
+        return random.random() < prob
+
     def handleTurns(self):
         if not self.fightActive:
             return
 
         # * Checks if one side DIED
-        if self.playerHp <= 0 or self.enemyHp <= 0:
+        if self.player.hp <= 0 or self.enemyHp <= 0:
             self.fightActive = False
             self.enemyManager.removeEnemy(self.currentEnemy)
 
-            self.spawnManager.clearSpawner(self.currentEnemy.spawnID)
+            self.spawnManager.clearSpawner(self.currentEnemy.spawnID)  # type: ignore
 
             self.gameStateManager.setCurrentEnemy(None)
             return
 
         now = time.time()
+
+        # CALC DAMAGE
         if now - self.lastActionTime >= self.turnDelay:
             if not self.playerTurn:
                 # Enemy turn
-                damage = max(self.currentEnemy.att - self.player.defe, 1)  # type: ignore
-                self.playerHp = max(self.playerHp - damage, 0)
-                self.playerTurn = True
+                dodge = self.rollProbability(self.player.dodge)
+                if dodge:
+                    print("player DODGED")
+                    time.sleep(1)
+                    self.playerTurn = True
+                else:
+                    reduction = (self.player.defe / (self.player.defe + 100)) * 0.4
+                    damage = self.currentEnemy.att * (1 - reduction)  # type: ignore
+                    damage = round(damage)
+                    self.player.hp = max(self.player.hp - damage, 0)
+                    self.playerTurn = True
             else:
                 # Player turn (auto-attack for now)
-                damage = max(self.player.att - self.currentEnemy.defe, 1)  # type: ignore
+                reduction = (
+                    self.currentEnemy.defe / (self.currentEnemy.defe + 100) * 0.4  # type: ignore
+                )
+                crit = self.rollProbability(self.player.cp)
+                if crit:
+                    print("PLAYER CRIT")
+                    damage = (self.player.att * 1.5) * (1 - reduction)
+                    damage = round(damage)
+                else:
+                    damage = (self.player.att) * (1 - reduction)
+                    damage = round(damage)
+
                 self.enemyHp = max(self.enemyHp - damage, 0)
                 self.playerTurn = False
             self.lastActionTime = now

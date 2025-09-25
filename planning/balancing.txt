@@ -1,0 +1,19 @@
+DAMAGE REDUCTION FORMULA:
+Reduction = (Def / (Def + 100)) * 0.4
+
+DAMAGE CALCULATION FORMULA:
+Damage = (Att * CP) * (1 - Reduction)
+
+
+BASE STATS (for avr 4 Turns per side)
+Player:
+hp = 50
+att = 15
+defe = 20
+cp = 0.2
+dodge = 0.1
+
+Enemy:
+hp = 50
+att = 15
+defe = 20

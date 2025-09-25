@@ -19,12 +19,14 @@ class GameEventManager:
     def enemySpawner(self):
         for spawn in self.spawnManager.allSpawners:
             if spawn.isEmpty and spawn.spawnTimer >= self.spawnCooldown:
-                self.enemyManager.createEnemy(spawn.pos, spawn.id)
+                self.enemyManager.createEnemy(
+                    spawn.pos, spawn.id, 0
+                )  # TODO CHANGE THIS!!! DIFF IS SET TO 0 SO EASY SET IS USED (enemymanager)
                 spawn.isEmpty = False
                 spawn.spawnTimer = 0
 
     def defaultSpawn(self):
         for spawn in self.spawnManager.allSpawners:
-            self.enemyManager.createEnemy(spawn.pos, spawn.id)
+            self.enemyManager.createEnemy(spawn.pos, spawn.id, 0)
             spawn.isEmpty = False
             spawn.spawnTimer = 0

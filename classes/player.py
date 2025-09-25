@@ -16,6 +16,7 @@ class Player:
         att: int,
         cp: float,
         defe: int,
+        maxhp: int,
     ):
         self.name = name
         self.pos = pos
@@ -24,6 +25,7 @@ class Player:
         self.xp = xp
 
         self.hp = hp
+        self.maxhp = maxhp
         self.speed = speed
         self.dodge = dodge
         self.att = att
@@ -43,17 +45,24 @@ class Player:
         # ToDo enter actual balanced stats
         self.hp, self.speed, self.dodge, self.att, self.cp, self.defe = (
             # standart values
-            100,
+            50,
             2,
             0.1,
-            10,
-            0.1,
+            15,
+            0.2,
             20,
         )
 
         for item in self.items:
 
-            self.hp *= item.hpS
+            hpBoost = self.maxhp * item.hpS - self.maxhp
+            self.maxhp *= item.hpS
+            self.hp += hpBoost
+            # if self.hp < 0.5 * self.maxhp:
+            #     self.hp *= 1.2
+            # elif self.hp < 0.8 * self.maxhp:
+            #     self.hp *= 1.05
+
             self.speed *= item.speedS
             self.dodge *= item.dodgeS
             self.att *= item.attS

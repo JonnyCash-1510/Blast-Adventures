@@ -1,5 +1,5 @@
 class Spawner:
-    def __init__(self, pos, spawnTimerOffset, id):
+    def __init__(self, pos, id):
         # start each spawner at a delay so they don't all trigger together
         self.spawnTimer = 0
         self.pos = pos

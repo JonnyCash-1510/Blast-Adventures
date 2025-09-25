@@ -30,18 +30,7 @@ class Game:
 
         self.itemsIsLoaded = False
         self.PLAYER = Player(
-            [40, 40],
-            "Player1",
-            10,
-            1.0,
-            "melee",
-            0,
-            100,
-            2,
-            0.1,
-            10,
-            0.1,
-            20,
+            [40, 40], "Player1", 10, 1.0, "melee", 0, 80, 2, 0.1, 15, 0.2, 20, 80
         )
 
         self.economy = Economy(self.PLAYER)

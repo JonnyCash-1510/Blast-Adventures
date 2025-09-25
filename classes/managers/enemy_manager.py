@@ -13,27 +13,40 @@ class EnemyManager:
         self.display = display
 
         # Todo enemys can only spawn in said coordinates
-        self.allStats = [
-            [0, "melee", 30, 10, 40, 1.2, 10],
-            [1, "longRange", 15, 15, 25, 1.2, 8],
+        # [id,size,att,defe,diff,hp]
+        self.easyStats = [
+            [0, "melee", 30, 12, 20, 0.5, 60],
+            [1, "longRange", 15, 18, 15, 0.5, 40],
         ]
 
-    def createEnemy(self, pos, spawnID):
+        self.midStats = [
+            [0, "melee", 30, 12, 20, 1, 60],
+            [1, "longRange", 15, 18, 15, 1, 40],
+        ]
 
+        self.hardStats = [
+            [0, "melee", 30, 12, 20, 1.5, 60],
+            [1, "longRange", 15, 18, 15, 1.5, 40],
+        ]
+
+        self.allStats = [self.easyStats, self.midStats, self.hardStats]
+
+    def createEnemy(self, pos, spawnID, diff):
+        statsSet = self.allStats[diff]
         #! [id, pos, type, size, att, defe, diff]
         # todo chooses a random enemy from the allStats list above
         # todo change that later depending on game ig
-        stats = random.choice(self.allStats)
+        stats = random.choice(statsSet)
 
         enemy = Enemy(
-            stats[0],
-            pos,
-            stats[1],
-            stats[2],
-            stats[3],
-            stats[4],
-            stats[5],
-            stats[6],
+            stats[0],  # id
+            pos,  # pos
+            stats[1],  # type
+            stats[2],  # size
+            stats[3],  # ATT
+            stats[4],  # DEFE
+            stats[5],  # DIFF
+            stats[6],  # HP
             spawnID,
         )
 
