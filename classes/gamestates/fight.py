@@ -20,8 +20,9 @@ class Fight:
         self.RED = (255, 0, 0)
         self.GREEN = (0, 255, 0)
         self.GRAY = (200, 200, 200)
+        self.BLUE = (0, 150, 255)
 
-        # UI Layout (bigger characters)
+        # UI Layout
         self.enemySize = int(self.player.size * 3)
         self.playerSize = int(self.player.size * 3)
         self.enemyPos = (self.width * 0.65, self.height * 0.25)
@@ -35,28 +36,62 @@ class Fight:
         # Turn handling
         self.turnDelay = 1
         self.lastActionTime = time.time()
-        self.playerTurn = False
+        self.playerTurn = True
 
-        # Fight state (initialized later)
+        # Fight state
         self.currentEnemy = None
         self.enemyMaxHp = 0
         self.enemyHp = 0
-
         self.fightActive = False
 
     def initFight(self):
         self.currentEnemy = self.gameStateManager.getCurrentEnemy()
         if self.currentEnemy is None:
-            # No enemy available, do not initialize fight
             self.fightActive = False
             self.gameStateManager.setState("level")
             return
+
+        # Restore player resources
+        self.player.power += 35
+        self.nextAttReduction = 0
+        self.bonusShield = 0
+
         self.enemyMaxHp = self.currentEnemy.hp
         self.enemyHp = self.enemyMaxHp
 
-        self.playerTurn = False
+        self.playerTurn = True
         self.lastActionTime = time.time()
         self.fightActive = True
+
+    def drawAbilityButtons(self):
+        self.abilities = ["Stab", "Stun", "Shield"]
+        self.buttonWidth = 200
+        self.buttonHeight = 50
+
+        def renderTextInBox(text, font_obj, boxRect, color=(0, 0, 0)):
+            surface = font_obj.render(text, True, color)
+            if surface.get_width() > boxRect.width - 10:
+                ratio = (boxRect.width - 10) / surface.get_width()
+                newW = int(surface.get_width() * ratio)
+                newH = int(surface.get_height() * ratio)
+                surface = pygame.transform.smoothscale(surface, (newW, newH))
+            rect = surface.get_rect(center=boxRect.center)
+            self.display.blit(surface, rect)
+
+        self.abilityRects = []
+        for i, ability in enumerate(self.abilities):
+            boxRect = pygame.Rect(
+                30 + (i + 1) * (self.buttonWidth + 20),
+                self.height - self.barHeight + 30,
+                self.buttonWidth,
+                self.buttonHeight,
+            )
+            pygame.draw.rect(self.display, self.BLACK, boxRect, 2)
+            self.abilityRects.append(boxRect)
+            renderTextInBox(ability, self.font, boxRect, self.BLACK)
+
+        if len(self.abilityRects) == 3:
+            self.ability1Rect, self.ability2Rect, self.ability3Rect = self.abilityRects
 
     def drawHealthBar(
         self,
@@ -68,29 +103,26 @@ class Fight:
         barWidth=150,
         barHeight=14,
         showTicks=False,
+        color=(0, 255, 0),
+        backColor=(255, 0, 0),
     ):
         if dynamic:
-            # Scale bar for player depending on max HP
             barWidth = int(maxHp * 1.5)
 
         ratio = max(currentHp / maxHp, 0)
-        # Outline
         pygame.draw.rect(self.display, self.BLACK, (x, y, barWidth, barHeight), 2)
-        # Background (red)
         pygame.draw.rect(
-            self.display, self.RED, (x + 2, y + 2, barWidth - 4, barHeight - 4)
+            self.display, backColor, (x + 2, y + 2, barWidth - 4, barHeight - 4)
         )
-        # Current HP (green)
         pygame.draw.rect(
             self.display,
-            self.GREEN,
+            color,
             (x + 2, y + 2, int((barWidth - 4) * ratio), barHeight - 4),
         )
 
-        # Optional tick marks (every 10 HP)
         if showTicks:
             pixels_per_hp = (barWidth - 4) / maxHp
-            for hp_tick in range(10, maxHp, 10):  # draw at 10, 20, 30... maxHp
+            for hp_tick in range(10, maxHp, 10):
                 tick_x = x + 2 + int(hp_tick * pixels_per_hp)
                 pygame.draw.line(
                     self.display,
@@ -106,14 +138,27 @@ class Fight:
             (0, 0, 255),
             (*self.playerPos, self.playerSize, self.playerSize),
         )
+        # HP bar
         self.drawHealthBar(
             self.playerPos[0],
             self.playerPos[1] - 25,
             self.player.hp,
             self.player.maxhp,
             dynamic=True,
-            showTicks=False,
+            color=self.GREEN,
+            backColor=self.RED,
         )
+        # Shield bar (only if > 0)
+        if self.player.shield > 0:
+            self.drawHealthBar(
+                self.playerPos[0],
+                self.playerPos[1] - 45,  # above HP bar
+                self.player.shield,
+                self.player.maxShield,
+                dynamic=True,
+                color=self.BLUE,
+                backColor=(50, 50, 50),
+            )
 
     def drawEnemy(self):
         enemyRect = pygame.Rect(*self.enemyPos, self.enemySize, self.enemySize)
@@ -124,6 +169,8 @@ class Fight:
             self.enemyHp,
             self.enemyMaxHp,
             dynamic=False,
+            color=self.GREEN,
+            backColor=self.RED,
             showTicks=True,
         )
 
@@ -133,23 +180,8 @@ class Fight:
             self.GRAY,
             (0, self.height - self.barHeight, self.width, self.barHeight),
         )
-        # Ability buttons
-        abilities = ["Slash", "Shield Bash", "Critical Strike"]
-        buttonWidth = 200
-        buttonHeight = 50
-        for i, ability in enumerate(abilities):
-            x = 30 + i * (buttonWidth + 20)
-            y = self.height - self.barHeight + 30
-            pygame.draw.rect(
-                self.display, self.BLACK, (x, y, buttonWidth, buttonHeight), 2
-            )
-            textSurface = self.font.render(ability, True, self.BLACK)
-            textRect = textSurface.get_rect(
-                center=(x + buttonWidth / 2, y + buttonHeight / 2)
-            )
-            self.display.blit(textSurface, textRect)
+        self.drawAbilityButtons()
 
-        # Player stats panel
         statsX = self.width - 250
         statsY = self.height - self.barHeight + 10
         panelHeight = self.barHeight + 20
@@ -171,63 +203,102 @@ class Fight:
     def rollProbability(self, prob: float) -> bool:
         return random.random() < prob
 
-    def handleTurns(self):
+    def handleAction(self, action):
+        if action == "stab":
+            reduction = (
+                self.currentEnemy.defe / (self.currentEnemy.defe + 100) * 0.4
+            ) * 0.75
+            damage = round(self.player.att * (1 - reduction))
+            self.player.power -= 5
+            self.enemyHp = max(self.enemyHp - damage, 0)
+            self.playerTurn = False
+
+        elif action == "stun":
+            dodge = self.rollProbability(0.2)
+            if dodge:
+                print("Enemy Dodged")
+                self.playerTurn = False
+                return
+            reduction = self.currentEnemy.defe / (self.currentEnemy.defe + 100) * 0.4
+            self.nextAttReduction = 0.5
+            crit = self.rollProbability(self.player.cp)
+            if crit:
+                print("PLAYER CRIT - STUN")
+                damage = round(self.player.att * (1 - reduction))
+            else:
+                damage = round(self.player.att * 0.5 * (1 - reduction))
+            self.player.power -= 10
+            self.enemyHp = max(self.enemyHp - damage, 0)
+            self.playerTurn = False
+
+        elif action == "shield":
+            self.bonusShield = 50
+            self.player.power -= 15
+            self.playerTurn = False
+
+    def handleTurns(self, events):
         if not self.fightActive:
             return
 
-        # * Checks if one side DIED
         if self.player.hp <= 0 or self.enemyHp <= 0:
             self.fightActive = False
             self.enemyManager.removeEnemy(self.currentEnemy)
-
-            self.spawnManager.clearSpawner(self.currentEnemy.spawnID)  # type: ignore
-
+            self.spawnManager.clearSpawner(self.currentEnemy.spawnID)
             self.gameStateManager.setCurrentEnemy(None)
             return
 
-        now = time.time()
-
-        # CALC DAMAGE
-        if now - self.lastActionTime >= self.turnDelay:
-            if not self.playerTurn:
-                # Enemy turn
-                dodge = self.rollProbability(self.player.dodge)
-                if dodge:
-                    print("player DODGED")
-                    time.sleep(1)
-                    self.playerTurn = True
-                else:
-                    reduction = (self.player.defe / (self.player.defe + 100)) * 0.4
-                    damage = self.currentEnemy.att * (1 - reduction)  # type: ignore
-                    damage = round(damage)
-                    self.player.hp = max(self.player.hp - damage, 0)
-                    self.playerTurn = True
-            else:
-                # Player turn (auto-attack for now)
-                reduction = (
-                    self.currentEnemy.defe / (self.currentEnemy.defe + 100) * 0.4  # type: ignore
+        if self.playerTurn:  # * PLAYER TURN
+            if self.bonusShield != 0:
+                self.player.shield = min(
+                    self.player.shield + self.bonusShield, self.player.maxShield
                 )
-                crit = self.rollProbability(self.player.cp)
+                print("SHIELD ACTIVATED")
+                self.bonusShield = 0
+
+            for event in events:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.ability1Rect.collidepoint(event.pos):
+                        self.handleAction(self.player.abilities[0])
+                    elif self.ability2Rect.collidepoint(event.pos):
+                        self.handleAction(self.player.abilities[1])
+                    elif self.ability3Rect.collidepoint(event.pos):
+                        self.handleAction(self.player.abilities[2])
+
+        else:  # * ENEMY TURN
+            dodge = self.rollProbability(self.player.dodge)
+            if dodge:
+                print("player DODGED")
+            else:
+                reduction = (self.player.defe / (self.player.defe + 100)) * 0.4
+                crit = self.rollProbability(0.2)  # * (ENEMY CRIT CHANCE 0.2)
                 if crit:
-                    print("PLAYER CRIT")
-                    damage = (self.player.att * 1.5) * (1 - reduction)
-                    damage = round(damage)
+                    damage = (self.currentEnemy.att * 1.5) * (1 - reduction)
+                    print("ENEMY CRIT")
                 else:
-                    damage = (self.player.att) * (1 - reduction)
-                    damage = round(damage)
+                    damage = (self.currentEnemy.att) * (1 - reduction)
+                if self.nextAttReduction != 0:
+                    damage *= 1 - self.nextAttReduction
+                    self.nextAttReduction = 0
+                damage = round(damage)
 
-                self.enemyHp = max(self.enemyHp - damage, 0)
-                self.playerTurn = False
-            self.lastActionTime = now
+                if self.player.shield > 0:
+                    absorbed = min(damage, self.player.shield)
+                    self.player.shield -= absorbed
+                    damage -= absorbed
 
-    def run(self):
-        # Only initialize fight if we actually have an enemy
+                if damage > 0:
+                    self.player.hp = max(self.player.hp - damage, 0)
+
+            # always hand turn back
+            self.playerTurn = True
+
+    def run(self, events):
         if not self.fightActive:
             self.initFight()
             if not self.fightActive:
-                return  # Nothing to draw, fight is over
-        self.handleTurns()
+                return
         self.display.fill(self.WHITE)
         self.drawPlayer()
         self.drawEnemy()
         self.drawBottomBar()
+        self.handleTurns(events)

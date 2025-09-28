@@ -3,6 +3,6 @@ class End:
         self.display = display
         self.gameStateManager = gameStateManager
 
-    def run(self):
+    def run(self, events):
         # todo End screen goes here
         self.display.fill("black")

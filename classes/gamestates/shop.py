@@ -165,7 +165,7 @@ class Shop:
         pygame.draw.rect(self.display, (200, 200, 200), textRect)
         self.display.blit(textSurface, textRect)
 
-    def run(self):
+    def run(self, events):
         if self.shopActive:
             #! display Shop here
 

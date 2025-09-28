@@ -59,7 +59,7 @@ class Level:
     def displayPlayerMoney(self):
         pass
 
-    def run(self):
+    def run(self, events):
         keys = pygame.key.get_pressed()
         dx, dy = 0, 0
         if keys[pygame.K_a]:

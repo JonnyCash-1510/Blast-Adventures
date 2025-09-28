@@ -31,8 +31,15 @@ class Player:
         self.att = att
         self.cp = cp
         self.defe = defe
+        self.shield = 0  # TODO MAKE CHAT DISPLAY THIS IN BLUE
+        self.maxShield = 50
 
         self.items = []
+
+        self.power = 50
+
+        # TODO Make this Character dependent
+        self.abilities = ["stab", "stun", "shield"]
 
         self.playerMoney = 0
 

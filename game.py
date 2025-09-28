@@ -68,7 +68,8 @@ class Game:
     def run(self):
         while True:
 
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -80,7 +81,7 @@ class Game:
                 if keys[pygame.K_SPACE]:
                     self.gameStateManager.setState("level")
 
-            self.states[self.gameStateManager.getState()].run()
+            self.states[self.gameStateManager.getState()].run(events)
 
             self.gameEventManager.gameTimer()
             pygame.display.update()
